@@ -1,1 +1,7 @@
 project_id = "vjgksboqqhgwkjhjbmul"
+
+[functions.chat-stylist]
+verify_jwt = false
+
+[functions.analyze-skin-tone]
+verify_jwt = false
