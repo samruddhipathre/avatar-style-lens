@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 export const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([
-    { role: "assistant", content: "Hello! I'm your AVATAR fashion assistant. I can help you with outfit recommendations, style advice, and finding the perfect look for your body type and skin tone. How can I help you today?" }
+    { role: "assistant", content: "Hello! I'm your AVATAR fashion assistant. I can help you with outfit recommendations, style advice, finding the perfect look for your body type and skin tone, or connect you with customer care. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,7 +65,7 @@ export const Chatbot = () => {
         <Card className="fixed bottom-24 right-6 w-96 h-[500px] shadow-[var(--shadow-strong)] z-50 flex flex-col animate-fade-in">
           <div className="p-4 border-b border-border bg-gradient-to-r from-primary to-accent">
             <h3 className="font-semibold text-primary-foreground">AVATAR Style Assistant</h3>
-            <p className="text-xs text-primary-foreground/80">Powered by AI</p>
+            <p className="text-xs text-primary-foreground/80">Fashion Stylist & Customer Support</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4">

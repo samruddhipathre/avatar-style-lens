@@ -23,7 +23,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: 'You are AVATAR, an AI fashion stylist. Help users with outfit recommendations, style advice, and fashion tips based on body shape, skin tone, and personal preferences.' },
+          { role: 'system', content: 'You are AVATAR, an AI fashion stylist and customer support assistant. Help users with outfit recommendations, style advice, fashion tips based on body shape, skin tone, and personal preferences. Also assist with order inquiries, product questions, account issues, and general customer support. Be friendly, helpful, and professional.' },
           { role: 'user', content: message }
         ],
       }),
@@ -34,7 +34,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
