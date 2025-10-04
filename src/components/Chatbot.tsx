@@ -13,6 +13,7 @@ export const Chatbot = () => {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -20,11 +21,12 @@ export const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  const sendMessage = async (messageText?: string) => {
+    const userMessage = messageText || input.trim();
+    if (!userMessage || loading) return;
 
-    const userMessage = input.trim();
     setInput("");
+    setShowQuickActions(false);
     setMessages(prev => [...prev, { role: "user", content: userMessage }]);
     setLoading(true);
 
@@ -47,6 +49,13 @@ export const Chatbot = () => {
       setLoading(false);
     }
   };
+
+  const quickActions = [
+    { label: "Style Advice", message: "I need style advice for my body type" },
+    { label: "Product Help", message: "I have a question about a product" },
+    { label: "Order Support", message: "I need help with my order" },
+    { label: "Customer Care", message: "I need to speak with customer care about an issue" }
+  ];
 
   return (
     <>
@@ -85,6 +94,24 @@ export const Chatbot = () => {
                 </div>
               </div>
             ))}
+            {showQuickActions && messages.length === 1 && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground text-center">Quick Actions:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {quickActions.map((action, idx) => (
+                    <Button
+                      key={idx}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => sendMessage(action.message)}
+                      className="text-xs h-auto py-2"
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-secondary rounded-2xl px-4 py-2">
@@ -108,7 +135,7 @@ export const Chatbot = () => {
               <Button
                 variant="default"
                 size="icon"
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={loading || !input.trim()}
               >
                 <Send className="h-4 w-4" />

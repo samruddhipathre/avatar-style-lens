@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { Chatbot } from "@/components/Chatbot";
 import { ProductCard } from "@/components/ProductCard";
 import { SkinAnalysis } from "@/components/SkinAnalysis";
+import { ExploreCollection } from "@/components/ExploreCollection";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,6 +28,7 @@ const Index = () => {
       <Header />
       <Hero />
       <SkinAnalysis />
+      <ExploreCollection />
       <section className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold mb-8 text-center">Recommended For You</h2>
         {products.length > 0 ? (
