@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { AddToCartDialog } from "./AddToCartDialog";
 
 interface ProductCardProps {
   product: {
@@ -13,17 +14,18 @@ interface ProductCardProps {
     price_inr: number;
     image_url: string | null;
     category: string;
+    sizes?: string[];
   };
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    setLoading(true);
-
+    
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
@@ -32,15 +34,23 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         description: "Please sign in to add items to cart",
         variant: "destructive",
       });
-      setLoading(false);
       return;
     }
+
+    setDialogOpen(true);
+  };
+
+  const handleConfirmAddToCart = async (size: string) => {
+    setLoading(true);
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
 
     const { error } = await supabase.from("cart_items").insert({
       user_id: session.user.id,
       product_id: product.id,
       quantity: 1,
-      selected_size: "M",
+      selected_size: size,
     });
 
     if (error) {
@@ -52,7 +62,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     } else {
       toast({
         title: "Added to cart",
-        description: `${product.name} has been added to your cart`,
+        description: `${product.name} (Size: ${size}) has been added to your cart`,
       });
     }
     
@@ -101,6 +111,13 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </Button>
         </Link>
       </CardFooter>
+
+      <AddToCartDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        product={product}
+        onConfirm={handleConfirmAddToCart}
+      />
     </Card>
   );
 };
