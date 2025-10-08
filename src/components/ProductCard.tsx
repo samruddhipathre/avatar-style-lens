@@ -101,12 +101,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </CardContent>
 
       <CardFooter className="p-4 pt-0 flex gap-2">
-        <Button variant="cart" className="flex-1" onClick={handleAddToCart} disabled={loading}>
+        <Button type="button" variant="cart" className="flex-1" onClick={handleAddToCart} disabled={loading}>
           <ShoppingCart className="mr-2 h-4 w-4" />
           Add to Cart
         </Button>
         <Link to="/try-on" className="flex-1">
-          <Button variant="outline" className="w-full">
+          <Button type="button" variant="outline" className="w-full">
             Try On
           </Button>
         </Link>

@@ -219,7 +219,7 @@ export const AddToCartDialog = ({ open, onOpenChange, product, onConfirm }: AddT
                   playsInline
                   className="w-full rounded-lg border"
                 />
-                <Button onClick={capturePhoto} className="w-full">
+                <Button type="button" onClick={capturePhoto} className="w-full">
                   <Camera className="mr-2 h-4 w-4" />
                   Capture
                 </Button>
@@ -231,6 +231,7 @@ export const AddToCartDialog = ({ open, onOpenChange, product, onConfirm }: AddT
                 <img src={capturedImage} alt="Captured" className="w-full rounded-lg border" />
                 <div className="flex gap-2">
                   <Button
+                    type="button"
                     onClick={analyzeSizeAndSkinTone}
                     disabled={analyzing}
                     className="flex-1"
@@ -239,6 +240,7 @@ export const AddToCartDialog = ({ open, onOpenChange, product, onConfirm }: AddT
                     Analyze Photo
                   </Button>
                   <Button
+                    type="button"
                     variant="outline"
                     onClick={() => setCapturedImage(null)}
                     className="flex-1"
@@ -253,7 +255,7 @@ export const AddToCartDialog = ({ open, onOpenChange, product, onConfirm }: AddT
           </div>
 
           {/* Confirm Button */}
-          <Button onClick={handleConfirm} className="w-full" disabled={!selectedSize}>
+          <Button type="button" onClick={handleConfirm} className="w-full" disabled={!selectedSize}>
             Confirm & Add to Cart
           </Button>
         </div>

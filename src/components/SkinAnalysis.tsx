@@ -132,6 +132,7 @@ export const SkinAnalysis = () => {
         {!showCamera && !imagePreview && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button
+              type="button"
               size="lg"
               variant="default"
               onClick={startCamera}
@@ -141,6 +142,7 @@ export const SkinAnalysis = () => {
               <span>Take Live Photo</span>
             </Button>
             <Button
+              type="button"
               size="lg"
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
@@ -168,11 +170,11 @@ export const SkinAnalysis = () => {
               className="w-full rounded-lg"
             />
             <div className="flex gap-4">
-              <Button onClick={capturePhoto} className="flex-1">
+              <Button type="button" onClick={capturePhoto} className="flex-1">
                 <Camera className="mr-2 h-4 w-4" />
                 Capture
               </Button>
-              <Button onClick={stopCamera} variant="outline" className="flex-1">
+              <Button type="button" onClick={stopCamera} variant="outline" className="flex-1">
                 Cancel
               </Button>
             </div>
@@ -202,6 +204,7 @@ export const SkinAnalysis = () => {
               </div>
             )}
             <Button
+              type="button"
               onClick={() => {
                 setImagePreview(null);
                 setResult(null);

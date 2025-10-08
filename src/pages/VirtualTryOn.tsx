@@ -151,7 +151,7 @@ export default function VirtualTryOn() {
                 className="w-full h-64 object-cover rounded-lg"
               />
               <div className="space-y-4">
-                <Button variant="hero" size="lg" onClick={startCamera} className="w-full sm:w-auto">
+                <Button type="button" variant="hero" size="lg" onClick={startCamera} className="w-full sm:w-auto">
                   <Camera className="mr-2 h-5 w-5" />
                   Start Virtual Try-On
                 </Button>
@@ -174,11 +174,11 @@ export default function VirtualTryOn() {
                 <canvas ref={canvasRef} className="hidden" />
               </div>
               <div className="flex justify-center gap-4">
-                <Button variant="hero" onClick={capturePhoto}>
+                <Button type="button" variant="hero" onClick={capturePhoto}>
                   <Camera className="mr-2 h-4 w-4" />
                   Capture
                 </Button>
-                <Button variant="outline" onClick={stopCamera}>
+                <Button type="button" variant="outline" onClick={stopCamera}>
                   <X className="mr-2 h-4 w-4" />
                   Cancel
                 </Button>
@@ -196,19 +196,19 @@ export default function VirtualTryOn() {
                 />
               </div>
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button variant="hero" onClick={() => setCapturedImage(null)}>
+                <Button type="button" variant="hero" onClick={() => setCapturedImage(null)}>
                   <Camera className="mr-2 h-4 w-4" />
                   Try Again
                 </Button>
-                <Button variant="outline" onClick={() => shareToSocial("whatsapp")}>
+                <Button type="button" variant="outline" onClick={() => shareToSocial("whatsapp")}>
                   <Share2 className="mr-2 h-4 w-4" />
                   WhatsApp
                 </Button>
-                <Button variant="outline" onClick={() => shareToSocial("instagram")}>
+                <Button type="button" variant="outline" onClick={() => shareToSocial("instagram")}>
                   <Instagram className="mr-2 h-4 w-4" />
                   Instagram
                 </Button>
-                <Button variant="outline" onClick={() => shareToSocial("facebook")}>
+                <Button type="button" variant="outline" onClick={() => shareToSocial("facebook")}>
                   <Facebook className="mr-2 h-4 w-4" />
                   Facebook
                 </Button>

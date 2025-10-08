@@ -114,6 +114,7 @@ export default function Cart() {
                       <p className="text-primary font-bold">₹{item.products?.price_inr.toLocaleString('en-IN')}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <Button
+                          type="button"
                           variant="outline"
                           size="icon"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -122,6 +123,7 @@ export default function Cart() {
                         </Button>
                         <span className="w-12 text-center font-medium">{item.quantity}</span>
                         <Button
+                          type="button"
                           variant="outline"
                           size="icon"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
@@ -129,6 +131,7 @@ export default function Cart() {
                           <Plus className="h-4 w-4" />
                         </Button>
                         <Button
+                          type="button"
                           variant="ghost"
                           size="icon"
                           onClick={() => removeItem(item.id)}
@@ -160,6 +163,7 @@ export default function Cart() {
                 </div>
               </div>
               <Button 
+                type="button"
                 variant="hero" 
                 className="w-full" 
                 size="lg"

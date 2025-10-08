@@ -65,7 +65,7 @@ export default function Auth() {
                 <Label htmlFor="password-signin">Password</Label>
                 <Input id="password-signin" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
-              <Button variant="hero" className="w-full" onClick={handleSignIn} disabled={loading}>
+              <Button type="button" variant="hero" className="w-full" onClick={handleSignIn} disabled={loading}>
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
             </TabsContent>
@@ -78,7 +78,7 @@ export default function Auth() {
                 <Label htmlFor="password-signup">Password</Label>
                 <Input id="password-signup" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
-              <Button variant="hero" className="w-full" onClick={handleSignUp} disabled={loading}>
+              <Button type="button" variant="hero" className="w-full" onClick={handleSignUp} disabled={loading}>
                 {loading ? "Creating account..." : "Sign Up"}
               </Button>
             </TabsContent>

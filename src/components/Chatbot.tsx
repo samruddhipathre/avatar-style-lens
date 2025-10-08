@@ -101,6 +101,7 @@ export const Chatbot = () => {
                   {quickActions.map((action, idx) => (
                     <Button
                       key={idx}
+                      type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => sendMessage(action.message)}
@@ -133,6 +134,7 @@ export const Chatbot = () => {
                 disabled={loading}
               />
               <Button
+                type="button"
                 variant="default"
                 size="icon"
                 onClick={() => sendMessage()}
