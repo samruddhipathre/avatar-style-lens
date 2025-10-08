@@ -52,14 +52,39 @@ export const AddToCartDialog = ({ open, onOpenChange, product, onConfirm }: AddT
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      
+      // Ensure video is playing and has valid dimensions
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        toast({
+          title: "Camera Error",
+          description: "Please wait for the camera to initialize",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const context = canvasRef.current.getContext("2d");
       if (context) {
-        canvasRef.current.width = videoRef.current.videoWidth;
-        canvasRef.current.height = videoRef.current.videoHeight;
-        context.drawImage(videoRef.current, 0, 0);
+        canvasRef.current.width = video.videoWidth;
+        canvasRef.current.height = video.videoHeight;
+        context.drawImage(video, 0, 0);
         const imageDataUrl = canvasRef.current.toDataURL("image/jpeg");
-        setCapturedImage(imageDataUrl);
-        stopCamera();
+        
+        if (imageDataUrl && imageDataUrl !== "data:,") {
+          setCapturedImage(imageDataUrl);
+          stopCamera();
+          toast({
+            title: "Photo captured!",
+            description: "You can now analyze or retake the photo",
+          });
+        } else {
+          toast({
+            title: "Capture Error",
+            description: "Failed to capture photo. Please try again.",
+            variant: "destructive"
+          });
+        }
       }
     }
   };

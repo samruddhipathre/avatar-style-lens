@@ -45,6 +45,17 @@ export const SkinAnalysis = () => {
     if (videoRef.current && canvasRef.current) {
       const canvas = canvasRef.current;
       const video = videoRef.current;
+      
+      // Ensure video is playing and has valid dimensions
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        toast({
+          title: "Camera Error",
+          description: "Please wait for the camera to initialize",
+          variant: "destructive"
+        });
+        return;
+      }
+
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
@@ -55,10 +66,16 @@ export const SkinAnalysis = () => {
             const url = URL.createObjectURL(blob);
             setImagePreview(url);
             analyzeSkinTone(blob);
+            stopCamera();
+          } else {
+            toast({
+              title: "Capture Error",
+              description: "Failed to capture photo. Please try again.",
+              variant: "destructive"
+            });
           }
         }, "image/jpeg");
       }
-      stopCamera();
     }
   };
 
