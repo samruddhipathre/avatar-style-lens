@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Chatbot } from "@/components/Chatbot";
 import { Button } from "@/components/ui/button";
-import { Camera, Share2, Upload, X, Instagram, Facebook, Loader2 } from "lucide-react";
+import { Camera, Share2, Upload, X, Instagram, Facebook, Loader2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -340,58 +340,88 @@ export default function VirtualTryOn() {
           )}
 
           {capturedImage && !tryonResult && (
-            <Card className="p-4 space-y-6">
-              <div className="relative">
-                <img
-                  src={capturedImage}
-                  alt="Captured"
-                  className="w-full h-auto rounded-lg"
-                />
-              </div>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Select Product to Try On</label>
-                  <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a product..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          {product.name} - ₹{product.price_inr}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            <div className="grid lg:grid-cols-2 gap-6">
+              <Card className="p-4 space-y-4 h-fit">
+                <div className="relative">
+                  <img
+                    src={capturedImage}
+                    alt="Your Photo"
+                    className="w-full h-auto rounded-lg"
+                  />
                 </div>
-
-                <div className="flex flex-wrap gap-4 justify-center">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-center">Your Photo</p>
                   <Button 
                     type="button" 
-                    variant="hero" 
-                    onClick={processTryOn}
-                    disabled={!selectedProduct || processing}
+                    variant="outline" 
+                    onClick={() => {
+                      setCapturedImage(null);
+                      setSelectedProduct("");
+                    }}
+                    className="w-full"
                   >
-                    {processing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      "Apply Virtual Try-On"
-                    )}
-                  </Button>
-                  <Button type="button" variant="outline" onClick={() => {
-                    setCapturedImage(null);
-                    setSelectedProduct("");
-                  }}>
                     <Camera className="mr-2 h-4 w-4" />
-                    Try Different Photo
+                    Take New Photo
                   </Button>
                 </div>
-              </div>
-            </Card>
+              </Card>
+
+              <Card className="p-4 space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">Select an Outfit to Try</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Click on any product to see how it looks on you
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[600px] overflow-y-auto pr-2">
+                  {products.map((product) => (
+                    <div
+                      key={product.id}
+                      onClick={() => setSelectedProduct(product.id)}
+                      className={`group cursor-pointer space-y-2 p-2 rounded-lg border-2 transition-all ${
+                        selectedProduct === product.id
+                          ? "border-primary bg-primary/5"
+                          : "border-transparent hover:border-primary/50"
+                      }`}
+                    >
+                      <div className="aspect-[3/4] overflow-hidden rounded-md">
+                        <img
+                          src={product.image_url || "/placeholder.svg"}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium line-clamp-2">{product.name}</p>
+                        <p className="text-xs text-primary font-semibold">₹{product.price_inr}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <Button 
+                  type="button" 
+                  variant="hero" 
+                  onClick={processTryOn}
+                  disabled={!selectedProduct || processing}
+                  className="w-full"
+                  size="lg"
+                >
+                  {processing ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Creating Virtual Try-On...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Try This Outfit
+                    </>
+                  )}
+                </Button>
+              </Card>
+            </div>
           )}
 
           {tryonResult && (
