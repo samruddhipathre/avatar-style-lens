@@ -1,14 +1,28 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Camera, Upload, Sparkles } from "lucide-react";
+import { Camera, Upload, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+
+interface SkinAnalysisResult {
+  skinTone: string;
+  skinType: string;
+  concerns: string[];
+  analysis: string;
+  recommendations: {
+    products: string[];
+    routine: string[];
+    ingredients: string[];
+  };
+  strengths: string[];
+}
 
 export const SkinAnalysis = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<SkinAnalysisResult | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -105,20 +119,23 @@ export const SkinAnalysis = () => {
 
         if (error) throw error;
 
-        setResult(data.skinTone);
+        setResult(data);
         
-        // Update user profile with skin tone
+        // Update user profile with skin analysis
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           await supabase
             .from("profiles")
-            .update({ skin_tone: data.skinTone })
+            .update({ 
+              skin_tone: data.skinTone,
+              body_shape: data.skinType
+            })
             .eq("id", user.id);
         }
 
         toast({
           title: "Analysis Complete!",
-          description: `Your skin tone is: ${data.skinTone}`,
+          description: `Skin Tone: ${data.skinTone} | Type: ${data.skinType}`,
         });
       };
     } catch (error) {
@@ -213,11 +230,92 @@ export const SkinAnalysis = () => {
               </div>
             )}
             {result && (
-              <div className="text-center p-4 bg-primary/10 rounded-lg">
-                <p className="text-lg font-semibold">Your Skin Tone: {result}</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  We'll use this to recommend the perfect products for you!
-                </p>
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-primary/10 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Skin Tone</p>
+                    <p className="text-xl font-bold">{result.skinTone}</p>
+                  </div>
+                  <div className="p-4 bg-primary/10 rounded-lg">
+                    <p className="text-sm text-muted-foreground">Skin Type</p>
+                    <p className="text-xl font-bold">{result.skinType}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Analysis
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{result.analysis}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    Your Skin Strengths
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {result.strengths.map((strength, i) => (
+                      <Badge key={i} variant="secondary" className="text-xs">
+                        {strength}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-orange-500" />
+                    Areas to Address
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {result.concerns.map((concern, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">
+                        {concern}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+                  <h3 className="font-semibold">Personalized Recommendations</h3>
+                  
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Recommended Products:</p>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      {result.recommendations.products.map((product, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-primary">•</span>
+                          {product}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Daily Routine:</p>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      {result.recommendations.routine.map((step, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-primary">{i + 1}.</span>
+                          {step}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Key Ingredients to Look For:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {result.recommendations.ingredients.map((ingredient, i) => (
+                        <Badge key={i} className="text-xs">
+                          {ingredient}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             <Button

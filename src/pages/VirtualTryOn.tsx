@@ -243,41 +243,76 @@ export default function VirtualTryOn() {
           </div>
 
           {!showCamera && !capturedImage && !tryonResult && (
-            <Card className="p-8 text-center space-y-6">
-              <img 
-                src={tryonFeature} 
-                alt="Virtual Try-On" 
-                className="w-full h-64 object-cover rounded-lg"
-              />
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button type="button" variant="hero" size="lg" onClick={startCamera} className="w-full sm:w-auto">
-                    <Camera className="mr-2 h-5 w-5" />
-                    Take Photo
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="lg" 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full sm:w-auto"
-                  >
-                    <Upload className="mr-2 h-5 w-5" />
-                    Upload Photo
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
+            <>
+              <Card className="p-8 text-center space-y-6">
+                <img 
+                  src={tryonFeature} 
+                  alt="Virtual Try-On" 
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button type="button" variant="hero" size="lg" onClick={startCamera} className="w-full sm:w-auto">
+                      <Camera className="mr-2 h-5 w-5" />
+                      Take Photo
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="lg" 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full sm:w-auto"
+                    >
+                      <Upload className="mr-2 h-5 w-5" />
+                      Upload Photo
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {hasFreeTrial ? "Sign in to continue using virtual try-on" : "First try-on is free!"}
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {hasFreeTrial ? "Sign in to continue using virtual try-on" : "First try-on is free!"}
-                </p>
-              </div>
-            </Card>
+              </Card>
+
+              {products.length > 0 && (
+                <Card className="p-6">
+                  <h2 className="text-2xl font-bold mb-6">Browse Our Collection</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {products.slice(0, 12).map((product) => (
+                      <div 
+                        key={product.id} 
+                        className="group cursor-pointer space-y-2"
+                        onClick={() => {
+                          setSelectedProduct(product.id);
+                          toast({
+                            title: "Product Selected",
+                            description: `${product.name} - Upload or take a photo to try it on!`
+                          });
+                        }}
+                      >
+                        <div className="aspect-[3/4] overflow-hidden rounded-lg border-2 border-transparent group-hover:border-primary transition-colors">
+                          <img
+                            src={product.image_url || "/placeholder.svg"}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium line-clamp-1">{product.name}</p>
+                          <p className="text-sm text-primary">₹{product.price_inr}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </>
           )}
 
           {showCamera && (
