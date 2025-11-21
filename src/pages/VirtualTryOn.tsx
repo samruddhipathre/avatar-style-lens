@@ -2,10 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Chatbot } from "@/components/Chatbot";
 import { Button } from "@/components/ui/button";
-import { Camera, Share2, Upload, X, Instagram, Facebook } from "lucide-react";
+import { Camera, Share2, Upload, X, Instagram, Facebook, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import tryonFeature from "@/assets/tryon-feature.jpg";
 
 export default function VirtualTryOn() {
@@ -13,18 +14,34 @@ export default function VirtualTryOn() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [hasFreeTrial, setHasFreeTrial] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<string>("");
+  const [tryonResult, setTryonResult] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     checkFreeTrial();
+    fetchProducts();
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
+
+  const fetchProducts = async () => {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .limit(20);
+    if (data) {
+      setProducts(data);
+    }
+  };
 
   const checkFreeTrial = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -91,7 +108,6 @@ export default function VirtualTryOn() {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       
-      // Ensure video is playing and has valid dimensions
       if (video.videoWidth === 0 || video.videoHeight === 0) {
         toast({
           title: "Camera Error",
@@ -113,7 +129,7 @@ export default function VirtualTryOn() {
           stopCamera();
           toast({
             title: "Photo captured!",
-            description: "Now you can share your look",
+            description: "Select a product to try it on",
           });
         } else {
           toast({
@@ -123,6 +139,68 @@ export default function VirtualTryOn() {
           });
         }
       }
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCapturedImage(reader.result as string);
+        toast({
+          title: "Photo uploaded!",
+          description: "Select a product to try it on",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const processTryOn = async () => {
+    if (!capturedImage) {
+      toast({
+        title: "No image",
+        description: "Please capture or upload a photo first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setProcessing(true);
+    setTryonResult(null);
+
+    try {
+      const product = products.find(p => p.id === selectedProduct);
+      
+      const { data, error } = await supabase.functions.invoke("virtual-tryon", {
+        body: {
+          userImage: capturedImage,
+          productImage: product?.image_url || null,
+          productName: product?.name || "stylish outfit"
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success && data.imageUrl) {
+        setTryonResult(data.imageUrl);
+        toast({
+          title: "Try-on complete!",
+          description: "See how the outfit looks on you",
+        });
+      } else {
+        throw new Error("Failed to generate try-on");
+      }
+    } catch (error) {
+      console.error("Try-on error:", error);
+      toast({
+        title: "Try-on failed",
+        description: "Could not process virtual try-on. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -164,7 +242,7 @@ export default function VirtualTryOn() {
             </p>
           </div>
 
-          {!showCamera && !capturedImage && (
+          {!showCamera && !capturedImage && !tryonResult && (
             <Card className="p-8 text-center space-y-6">
               <img 
                 src={tryonFeature} 
@@ -172,10 +250,29 @@ export default function VirtualTryOn() {
                 className="w-full h-64 object-cover rounded-lg"
               />
               <div className="space-y-4">
-                <Button type="button" variant="hero" size="lg" onClick={startCamera} className="w-full sm:w-auto">
-                  <Camera className="mr-2 h-5 w-5" />
-                  Start Virtual Try-On
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button type="button" variant="hero" size="lg" onClick={startCamera} className="w-full sm:w-auto">
+                    <Camera className="mr-2 h-5 w-5" />
+                    Take Photo
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="lg" 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full sm:w-auto"
+                  >
+                    <Upload className="mr-2 h-5 w-5" />
+                    Upload Photo
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </div>
                 <p className="text-sm text-muted-foreground">
                   {hasFreeTrial ? "Sign in to continue using virtual try-on" : "First try-on is free!"}
                 </p>
@@ -207,8 +304,8 @@ export default function VirtualTryOn() {
             </Card>
           )}
 
-          {capturedImage && (
-            <Card className="p-4 space-y-4">
+          {capturedImage && !tryonResult && (
+            <Card className="p-4 space-y-6">
               <div className="relative">
                 <img
                   src={capturedImage}
@@ -216,10 +313,69 @@ export default function VirtualTryOn() {
                   className="w-full h-auto rounded-lg"
                 />
               </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select Product to Try On</label>
+                  <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a product..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map((product) => (
+                        <SelectItem key={product.id} value={product.id}>
+                          {product.name} - ₹{product.price_inr}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex flex-wrap gap-4 justify-center">
+                  <Button 
+                    type="button" 
+                    variant="hero" 
+                    onClick={processTryOn}
+                    disabled={!selectedProduct || processing}
+                  >
+                    {processing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      "Apply Virtual Try-On"
+                    )}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => {
+                    setCapturedImage(null);
+                    setSelectedProduct("");
+                  }}>
+                    <Camera className="mr-2 h-4 w-4" />
+                    Try Different Photo
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {tryonResult && (
+            <Card className="p-4 space-y-4">
+              <div className="relative">
+                <img
+                  src={tryonResult}
+                  alt="Virtual Try-On Result"
+                  className="w-full h-auto rounded-lg"
+                />
+              </div>
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button type="button" variant="hero" onClick={() => setCapturedImage(null)}>
+                <Button type="button" variant="hero" onClick={() => {
+                  setTryonResult(null);
+                  setCapturedImage(null);
+                  setSelectedProduct("");
+                }}>
                   <Camera className="mr-2 h-4 w-4" />
-                  Try Again
+                  Try Another Look
                 </Button>
                 <Button type="button" variant="outline" onClick={() => shareToSocial("whatsapp")}>
                   <Share2 className="mr-2 h-4 w-4" />
